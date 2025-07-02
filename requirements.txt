@@ -1,0 +1,11 @@
+# requirements.txt
+pandas
+numpy
+yfinance
+fredapi
+prophet
+scikit-learn
+matplotlib
+seaborn
+plotly
+streamlit
