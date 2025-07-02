@@ -4,8 +4,8 @@ import plotly.express as px
 import sys
 import os
 
-#  Adjust path for Colab
-sys.path.append("/content/CrashSentinel/src")
+#  Adjust path to include /src for local execution
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
 from data_loader import load_yahoo_data
 from feature_engineering import volatility_index
@@ -37,7 +37,7 @@ st.line_chart(data['Volatility'])
 st.subheader(" Anomaly Detection")
 data_clean = data.dropna(subset=['Volatility'])
 model = train_isolation_forest(data_clean[['Volatility']])
-data_anomalies = append_anomaly_column(data_clean, model, ['Volatility'])
+data_anomalies = append_anomaly_column(data_clean.copy(), model, ['Volatility'])
 
 fig = px.scatter(
     data_anomalies.reset_index(), x='Date', y='Volatility',
@@ -53,4 +53,4 @@ forecast = forecast_with_prophet(data['Close'], periods=90)
 fig2 = px.line(forecast, x='ds', y='yhat', title="Forecasted Closing Prices")
 st.plotly_chart(fig2, use_container_width=True)
 
-st.caption("Built with  Streamlit, Prophet, and Scikit-Learn")
+st.caption(" Built with Streamlit, Prophet, and Scikit-Learn")
