@@ -48,7 +48,8 @@ apply_theme()
 st.info(f"📥 Downloading data for `{ticker}`...")
 try:
     data = load_yahoo_data(ticker, str(start_date), str(end_date))
-    data.columns = [col[0] if isinstance(col, tuple) else col for col in data.columns]
+    if isinstance(data.columns, pd.MultiIndex):
+        data.columns = [col[0] for col in data.columns]
 except Exception as e:
     st.error(f"❌ Data loading failed: {e}")
     st.stop()
@@ -102,7 +103,7 @@ with tab4:
     st.subheader("📉 Market Risk Index")
     try:
         fred_data = fetch_fred_data()
-        risk_index = compute_risk_index(data, fred_data, pd.DataFrame())
+        risk_index = compute_risk_index(data, fred_data, pd.DataFrame())  # Empty Zillow for now
         st.line_chart(risk_index['Risk Score'], use_container_width=True)
     except Exception as e:
         st.error(f"❌ Risk score computation failed: {e}")
@@ -123,7 +124,11 @@ with tab5:
         pdf.cell(200, 10, txt="CrashSentinel Market Report", ln=True, align='C')
         pdf.ln(10)
         for i, row in df.tail(20).iterrows():
-            pdf.cell(200, 6, txt=f"{i.date()} | Close: {row['Close']:.2f} | Vol: {row['Volatility']:.4f}", ln=True)
+            try:
+                date_str = i.strftime("%Y-%m-%d") if isinstance(i, datetime) else str(i)
+                pdf.cell(200, 6, txt=f"{date_str} | Close: {row['Close']:.2f} | Vol: {row['Volatility']:.4f}", ln=True)
+            except:
+                continue
         buffer = BytesIO()
         pdf.output(buffer)
         buffer.seek(0)
