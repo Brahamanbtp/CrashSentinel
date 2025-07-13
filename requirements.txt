@@ -19,7 +19,7 @@ seaborn>=0.12.2
 plotly>=5.16.1
 
 # Web Dashboard
-streamlit>=1.28.0
+streamlit>=1.28.0   
 
 # NLP & Web Scraping
 praw>=7.6.1                  # Reddit
