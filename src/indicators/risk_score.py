@@ -7,7 +7,7 @@ def normalize_df(df: pd.DataFrame) -> pd.DataFrame:
     Normalize each column in the DataFrame to a 0–100 scale using Min-Max scaling.
     """
     scaler = MinMaxScaler(feature_range=(0, 100))
-    scaled = scaler.fit_transform(df.fillna(method="ffill").fillna(method="bfill"))
+    scaled = scaler.fit_transform(df.ffill().bfill())
     return pd.DataFrame(scaled, index=df.index, columns=df.columns)
 
 
