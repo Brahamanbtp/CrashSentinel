@@ -15,7 +15,7 @@ from feature_engineering import volatility_index
 from anomaly_detection import train_isolation_forest, append_anomaly_column
 from time_series_model import forecast_with_prophet
 from data_sources.fred_loader import fetch_fred_data
-from indicators.risk_score import compute_risk_index
+from indicators.risk_score import compute_weighted_risk_index as compute_risk_index
 
 # --- Page Config ---
 st.set_page_config(page_title="CrashSentinel Dashboard", layout="wide", initial_sidebar_state="expanded")
@@ -103,8 +103,17 @@ with tab4:
     st.subheader("📉 Market Risk Index")
     try:
         fred_data = fetch_fred_data()
-        risk_index = compute_risk_index(data, fred_data, pd.DataFrame())  # Empty Zillow for now
-        st.line_chart(risk_index['Risk Score'], use_container_width=True)
+
+        # Align FRED indicators to data's date range
+        indicators_df = pd.DataFrame(index=fred_data.index)
+        for col in fred_data.columns:
+            indicators_df[col] = fred_data[col]
+        indicators_df = indicators_df.loc[data.index.min():data.index.max()]
+
+        # Compute risk score
+        risk_series = compute_risk_index(indicators_df)
+        risk_df = pd.DataFrame(risk_series)
+        st.line_chart(risk_df['Market Risk Score'], use_container_width=True)
     except Exception as e:
         st.error(f"❌ Risk score computation failed: {e}")
 
@@ -123,15 +132,16 @@ with tab5:
         pdf.set_font("Arial", size=10)
         pdf.cell(200, 10, txt="CrashSentinel Market Report", ln=True, align='C')
         pdf.ln(10)
+
         for i, row in df.tail(20).iterrows():
             try:
                 date_str = i.strftime("%Y-%m-%d") if isinstance(i, datetime) else str(i)
                 pdf.cell(200, 6, txt=f"{date_str} | Close: {row['Close']:.2f} | Vol: {row['Volatility']:.4f}", ln=True)
             except:
                 continue
-        buffer = BytesIO()
-        pdf.output(buffer)
-        buffer.seek(0)
+
+        pdf_output = pdf.output(dest='S').encode('latin1')
+        buffer = BytesIO(pdf_output)
         return buffer
 
     pdf_buffer = create_pdf(data)
