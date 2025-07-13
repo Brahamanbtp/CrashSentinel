@@ -8,12 +8,12 @@ load_dotenv()  # Load environment variables from .env
 
 def load_yahoo_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
     try:
-        print(f"📈 Downloading Yahoo data for {ticker}...")
-        df = yf.download(ticker, start=start_date, end=end_date)
+        print(f" Downloading Yahoo data for {ticker}...")
+        df = yf.download(ticker, start=start_date, end=end_date, auto_adjust=True)
         df.dropna(inplace=True)
         return df
     except Exception as e:
-        print(f"❌ Error fetching Yahoo data: {e}")
+        print(f" Error fetching Yahoo data: {e}")
         return pd.DataFrame()
 
 def load_fred_data(series_id: str) -> pd.Series:
