@@ -1,18 +1,13 @@
-import os
+import streamlit as st
 import pandas as pd
 import requests
 from fredapi import Fred
-import streamlit as st
 
-# --- Hybrid FRED API Key Loader: Support for local + Streamlit Cloud ---
-FRED_API_KEY = (
-    os.getenv("FRED_API_KEY")  # For local dev (.env or terminal)
-    or st.secrets.get("FRED_API_KEY")  # For Streamlit Cloud secrets
-)
-
-# --- Fail loudly if no key is found ---
-if not FRED_API_KEY:
-    st.error(" FRED_API_KEY is missing. Please set it in a .env file or Streamlit secrets.")
+# --- Load FRED API key from Streamlit secrets (for deployment) ---
+try:
+    FRED_API_KEY = st.secrets["FRED_API_KEY"]
+except Exception:
+    st.error(" FRED_API_KEY not found in Streamlit secrets. Please add it via Settings > Secrets.")
     st.stop()
 
 # --- Initialize FRED client ---
@@ -72,5 +67,6 @@ def get_series_release_dates(series_id: str) -> pd.DataFrame:
 if __name__ == "__main__":
     df = fetch_fred_data()
     print(df.tail())
+    import os
     os.makedirs("../../data", exist_ok=True)
     df.to_csv("../../data/fred_indicators.csv")
