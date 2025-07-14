@@ -7,16 +7,16 @@ from io import BytesIO
 from datetime import datetime
 from fpdf import FPDF
 
-# 🔐 --- Secret Debugger ---
-st.title("🔐 Secret Debugger")
+# # 🔐 --- Secret Debugger ---
+# st.title("🔐 Secret Debugger")
 
-try:
-    st.success("✅ Streamlit is running.")
-    st.write("FRED_API_KEY:", st.secrets["FRED_API_KEY"])
-except Exception as e:
-    st.error(f"❌ Could not access FRED_API_KEY: {e}")
+# try:
+#     st.success("✅ Streamlit is running.")
+#     st.write("FRED_API_KEY:", st.secrets["FRED_API_KEY"])
+# except Exception as e:
+#     st.error(f"❌ Could not access FRED_API_KEY: {e}")
 
-st.write("Full secrets loaded:", st.secrets._secrets if hasattr(st.secrets, "_secrets") else "No secrets object")
+# st.write("Full secrets loaded:", st.secrets._secrets if hasattr(st.secrets, "_secrets") else "No secrets object")
 
 # --- Add src directory to path ---
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
