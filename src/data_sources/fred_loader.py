@@ -2,18 +2,17 @@ import os
 import pandas as pd
 import requests
 from fredapi import Fred
-from dotenv import load_dotenv
 import streamlit as st
 
-# --- Load .env only in local (non-Streamlit Cloud) environment ---
-load_dotenv()
+# --- Hybrid FRED API Key Loader: Support for local + Streamlit Cloud ---
+FRED_API_KEY = (
+    os.getenv("FRED_API_KEY")  # For local dev (.env or terminal)
+    or st.secrets.get("FRED_API_KEY")  # For Streamlit Cloud secrets
+)
 
-# --- Hybrid API key loader ---
-FRED_API_KEY = os.getenv("FRED_API_KEY") or st.secrets.get("FRED_API_KEY")
-
-# --- Error if key is still not found ---
+# --- Fail loudly if no key is found ---
 if not FRED_API_KEY:
-    st.error("FRED_API_KEY is missing. Please set it in a .env file or in Streamlit secrets.")
+    st.error(" FRED_API_KEY is missing. Please set it in a .env file or Streamlit secrets.")
     st.stop()
 
 # --- Initialize FRED client ---
@@ -30,7 +29,7 @@ INDICATORS = {
 
 # --- Fetch main FRED indicator time series ---
 def fetch_fred_data(indicators=INDICATORS, start_date="2010-01-01", end_date=None) -> pd.DataFrame:
-    st.info("Fetching FRED economic indicators...")
+    st.info(" Fetching FRED economic indicators...")
     data_frames = []
 
     for code, desc in indicators.items():
@@ -40,24 +39,23 @@ def fetch_fred_data(indicators=INDICATORS, start_date="2010-01-01", end_date=Non
         df.index.name = "Date"
         data_frames.append(df)
 
-    df_merged = pd.concat(data_frames, axis=1)
-    return df_merged
+    return pd.concat(data_frames, axis=1)
 
 # --- Search for series by keyword ---
 def search_series_by_keyword(keyword: str, limit=10) -> pd.DataFrame:
-    st.write(f"Searching FRED for keyword: '{keyword}'")
+    st.write(f" Searching FRED for: '{keyword}'")
     results = fred.search(keyword, limit=limit)
     return results[['id', 'title']]
 
 # --- Get series in a given category ---
 def get_series_by_category(category_id: int) -> pd.DataFrame:
-    st.write(f"Getting series from category ID: {category_id}")
+    st.write(f" Getting series from category ID: {category_id}")
     df = fred.get_series_in_category(category_id)
     return df[['id', 'title']]
 
 # --- Get release dates for a series ---
 def get_series_release_dates(series_id: str) -> pd.DataFrame:
-    st.write(f"Fetching release dates for series: {series_id}")
+    st.write(f" Fetching release dates for series: {series_id}")
     url = "https://api.stlouisfed.org/fred/series/observations"
     params = {
         "series_id": series_id,
@@ -70,7 +68,7 @@ def get_series_release_dates(series_id: str) -> pd.DataFrame:
     obs = r.json()["observations"]
     return pd.DataFrame(obs)
 
-# --- CLI Test Runner ---
+# --- CLI Debug/Test Runner ---
 if __name__ == "__main__":
     df = fetch_fred_data()
     print(df.tail())
