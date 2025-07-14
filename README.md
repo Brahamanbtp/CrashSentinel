@@ -183,9 +183,16 @@ Visit [http://localhost:8501](http://localhost:8501)
 
 ---
 
-## 📜 License
 
-MIT License
+## 📄 Legal & Usage
+
+By using this project, you agree to the terms outlined in:
+
+- [LICENSE.md](./LICENSE.md)
+- [TERMS_OF_USE.md](./TERMS_OF_USE.md)
+
+Please review them carefully before deploying or modifying the software.
+
 
 ---
 
